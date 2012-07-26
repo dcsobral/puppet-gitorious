@@ -106,4 +106,6 @@ Something strange happens when I push stuff. Message:
        0a63c2d..90c2eb8  master -> master
        error: failed to push some refs to 'git@gitorious.ebc:puppet/gitorious.git'
 
+It seems you can avoid that by having stuff on .bashrc that selects the proper
+ruby/gemset.
 
