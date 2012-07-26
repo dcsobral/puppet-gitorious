@@ -240,6 +240,7 @@ class gitorious($gitorious_host, $ssh_fingerprint,
             owner  => 'git',
             group  => 'gitorious',
             mode   => 700,
+            require => Vcsrepo['/var/www/gitorious'],
         }
         file { '/var/www/gitorious/.ssh/authorized_keys':
             ensure  => present,
@@ -249,7 +250,17 @@ class gitorious($gitorious_host, $ssh_fingerprint,
             require => File['/var/www/gitorious/.ssh'],
         }
 
-        ### This helps checking which execs have been executed in the post-install
+        ### This makes the gitorious script work when SSH'ing to gitorious ###
+        file { '/var/www/gitorious/.bashrc':
+            ensure  => present,
+            owner   => 'git',
+            group   => 'gitorious',
+            mode    => 644,
+            source  => 'puppet:///gitorious/bashrc',
+            require => Vcsrepo['/var/www/gitorious'],
+        }
+
+        ### This helps checking which execs have been executed in the post-install ###
         file { '/var/www/gitorious/steps':
             ensure => directory,
             owner  => "git",
