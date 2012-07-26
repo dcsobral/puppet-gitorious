@@ -1,0 +1,93 @@
+# gitorious puppet module #
+
+This configures gitorious on a Debian Squeeze server, but it will probably work with Ubuntu
+or newer Debian versions. SSL is not supported right now -- pull requests are welcomed.
+
+It differs from the many recipes and puppet modules I found in the following ways:
+
+* Files bundled with the module are kept to a minimum. We either download,
+  or modify downloaded files to a huge extent. There are only four files
+  bundled, one of which isn't even necessary.
+* Nothing gets compiled. Use existing packages.
+* Prefer existing Debian packages -- for instance, the perfectly good and
+  up-to-date stompserver.
+* Use rvm to handle Ruby needs, so that gitorious finicky requirements
+  is kept isolated from the rest of the server.
+I depend on many other modules here, and even a few local classes. I provide
+these local classes as text in this document. The outside requirements are:
+
+* [dcsobral/apache](https://github.com/dcsobral/puppet-apache) -- easily replaceable
+* [camptocamp/apt](https://github.com/camptocamp/puppet-apt) -- actually, you only need Puppet >= 2.6.7
+* [camptocamp/common](https://github.com/camptocamp/puppet-common) -- one definition only
+* [camptocamp/mysql](https://github.com/camptocamp/puppet-mysql) -- essential, but replaceable
+* [blt04/rvm](https://github.com/blt04/puppet-rvm) -- essential
+* [dcsobral/puppet-users](https://github.com/dcsobral/puppet-users) -- not needed, you can remove it
+
+There are two local classes I include, git and production. Here is the
+source code for them:
+
+    ```puppet```
+    class git {
+        package { 'git':
+            ensure => installed,
+        }
+    }
+
+    class production {
+        common::line { 'rails production environment':
+            ensure  => present,
+            file    => '/etc/environment',
+            line    => 'RAILS_ENV=production',
+        }
+    }
+
+Now, there's a single class, gitorious, which has a bunch of parameters
+used mostly on the gitorious configuration template. You *should* look
+at the configuration template -- I have customized it for my own needs,
+and so should you. With luck, most of the stuff you want to customize
+will be available as a parameter of the gitorious class.
+
+Here are the parameters of the gitorious class:
+
+* gitorious_host: server name on the URL you'll be using
+* ssh_fingerprint: ssh fingerprint of the server
+* dbpassword: password for the gitorious user on the mysql database
+* cookie_secret: use apg -d -m 64 to generate this one
+* gitorious_admin_email: e-mail for everything related to gitorious itself
+* server_admin_email: e-mail for the web server administrator
+* locale: look at config/locales for supported ones; defaults to "en"
+* default_license: look at the template for default ones, or add one yourself; defaults to "Other/Proprietary License"
+* useActiveMQ: whether it uses stomp or activemq; defaults to false and it is untested with true
+
+Running this will execute a "bundle install", which can take a long time.
+For this reason, I have set a timeout of 10 minutes, plus three tries to
+get it done. Hopefully, it won't do something weird and just get stuck,
+but it will take how long it takes.
+
+Because of the way mysql is configured, this configuration *must* be run
+at least twice. The first run should have everything configured except
+database, and the related rake tasks. It also does not configure
+the gitorious services, since they probably won't work either anyway. However,
+that assumes you already have Puppet version >= 2.6.7, which is not the
+case for standard Squeeze.
+
+This module installs the backports, but you still need something else
+doing the update to a newer version of Puppet. Best experience is to
+just have a newer version of Puppet beforehand. Otherwise, you need to
+ensure somehow that Puppet will update itself in the presence of a newer
+version.
+
+After it finally installed everything, *you'll still need to create
+the admin user*. It looks like this is scriptable, but creating all
+this has taken its toll. You can create the admin user with this:
+
+    su - git -c '/usr/local/rvm/bin/rvm --with-rubies ree-1.8.7-2012.02@gitorious do script/create_admin'
+
+About the layout: I tried to keep most things in one file, so one can
+find dependencies more easily. I moved out a few things that have many
+line and are not particularly interesting dependency-wise. The config
+class is probably the one exception, but it was rather long and mostly
+uninteresting.
+
+Sorry for having so many dependencies and so many knobs. Again, pull requests are welcome.
+
