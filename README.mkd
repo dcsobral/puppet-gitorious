@@ -93,5 +93,17 @@ Sorry for having so many dependencies and so many knobs. Again, pull requests ar
 
 # Problems: #
 
-Something strange happens when I push stuff.
+Something strange happens when I push stuff. Message:
+
+    remote: ./hooks/messaging.rb:24:in `require': no such file to load -- rubygems
+    (LoadError)
+    remote: 	from ./hooks/messaging.rb:24
+    remote: 	from hooks/post-receive:25:in `require'
+    remote: 	from hooks/post-receive:25
+    remote: => Syncing Gitorious... fatal: The remote end hung up unexpectedly
+    error: error in sideband demultiplexer
+    To git@gitorious.ebc:puppet/gitorious.git
+       0a63c2d..90c2eb8  master -> master
+       error: failed to push some refs to 'git@gitorious.ebc:puppet/gitorious.git'
+
 
