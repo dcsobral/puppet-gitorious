@@ -203,8 +203,8 @@ class gitorious($gitorious_host, $ssh_fingerprint,
         }
         common::replace { 'git-ultrasphinx-rake': 
             file        => '/var/www/gitorious/doc/templates/ubuntu/git-ultrasphinx',
-            pattern     => 'rake',
-            replacement => '/usr/local/rvm/bin/rvm --with-rubies ree-1.8.7-2012.02\@gitorious do bundle exec rake',
+            pattern     => '&& rake',
+            replacement => '&& /usr/local/rvm/bin/rvm --with-rubies ree-1.8.7-2012.02\@gitorious do bundle exec rake',
             require     => Vcsrepo['/var/www/gitorious'],
         }
         common::replace { 'git-ultrasphinx-provides': 
