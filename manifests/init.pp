@@ -398,7 +398,7 @@ class gitorious($gitorious_host, $ssh_fingerprint,
                 # Cron stuff
                 cron { 'ultrasphinx-index':
                     ensure  => present,
-                    command => 'cd /var/www/gitorious && /usr/local/rvm/bin/rvm --with-rubies ree-1.8.7-2012.02@gitorious do bundle exec rake ultrasphinx:index RAILS_ENV=production',
+                    command => 'cd /var/www/gitorious && /usr/local/rvm/bin/rvm --with-rubies ree-1.8.7-2012.02@gitorious do bundle exec rake ultrasphinx:index RAILS_ENV=production > /dev/null',
                     user    => 'git',
                     require => [
                         Exec['rake-ultrasphinx'],
